@@ -1,10 +1,29 @@
 // @format
 
 import React from 'react'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+
+import { Grid } from 'semantic-ui-react'
+
+import Watch from './Watch'
+import VideoList from './VideoList'
 
 const App = () => {
 	return (
-		<h2>This is a test.</h2>
+		<Router>
+			<Switch>
+				<Route path="/:videoID">
+					<Watch />
+				</Route>
+				<Route path="/">
+					<Grid>
+						<Grid.Column width={16}>
+							<VideoList />
+						</Grid.Column>
+					</Grid>
+				</Route>
+			</Switch>
+		</Router>
 	)
 }
 
