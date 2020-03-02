@@ -1,17 +1,26 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"net/http"
+	"os"
 
-	"github.com/gobuffalo/packr"
+	"github.com/spkg/zipfs"
 )
 
-func main() {
-	box := packr.NewBox("../../frontend/build")
+//go:generate go run ../../internal/cmd/embed -o embed.go ../../frontend/build
 
-	f, err := box.Find("index.html")
+func main() {
+	pub, err := zipfs.NewFromReaderAt(bytes.NewReader(embed[:]), int64(len(embed)), nil)
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 	}
-	fmt.Printf("%s\n", f)
+
+	http.Handle("/", zipfs.FileServer(pub))
+
+	err = http.ListenAndServe(":8080", nil)
+	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+	os.Exit(1)
 }

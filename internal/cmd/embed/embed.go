@@ -84,31 +84,19 @@ func createOutput(output string, r io.Reader, pkg, name string) error {
 
 	fmt.Fprintf(&buf, `package %v
 
-import (
-	"archive/zip"
-	"bytes"
-)
-
-var %v = func(z *zip.Reader, err error) *zip.Reader {
-	if err != nil {
-		panic(err)
-	}
-	return z
-}(zip.NewReader(bytes.NewReader([]byte{
+var %v = [...]byte{
 `, pkg, name)
 
 	var line [32]byte
-	var size int
 	for {
 		n, err := r.Read(line[:])
 		if (err != nil) && !errors.Is(err, io.EOF) {
 			return err
 		}
-		size += n
 
 		sep := "\t"
 		for _, c := range line[:n] {
-			fmt.Fprintf(&buf, "%v0x%X,", sep, c)
+			fmt.Fprintf(&buf, "%v0x%02X,", sep, c)
 			sep = " "
 		}
 		fmt.Fprintln(&buf)
@@ -117,7 +105,7 @@ var %v = func(z *zip.Reader, err error) *zip.Reader {
 			break
 		}
 	}
-	fmt.Fprintf(&buf, "}), %v))", size)
+	fmt.Fprint(&buf, "}")
 
 	formatted, err := format.Source(buf.Bytes())
 	if err != nil {
