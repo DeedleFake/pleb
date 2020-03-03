@@ -1,12 +1,21 @@
 // @format
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { createUseStyles } from 'react-jss'
+
+import axios from 'axios'
 
 import VideoList from './VideoList'
 
 import noThumbnail from './assets/nothumbnail.gif'
+
+const api = process.env.NODE_ENV === 'production' ? process.env.PUBLIC_URL : 'http://localhost:8080'
+
+const removeExtension = (filename) => filename.replace(/\.[a-zA-Z0-9]+$/, '')
+
+const toSlug = (filename) =>
+	filename.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')
 
 const fakeVideos = [
 	{ time: new Date('January 2nd, 2920').toString(), file: 'A Fake Video.mp4' },
@@ -17,17 +26,11 @@ const fakeVideos = [
 	{ time: new Date('March 3rd, 1920').toString(), file: 'Unreal Video.mp4' },
 ]
 
-const removeExtension = (filename) => filename.replace(/\.[a-zA-Z0-9]+$/, '')
-
-const toSlug = (filename) =>
-	filename.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')
-
 const useStyles = createUseStyles({
 	'@global': {
 		body: {
 			fontFamily: 'Arial',
 			backgroundColor: 'lightgray',
-			color: 'white',
 			margin: 0,
 			padding: 0,
 		},
@@ -66,6 +69,12 @@ const useStyles = createUseStyles({
 const App = () => {
 	const classes = useStyles()
 
+	useEffect(() => {
+		axios.get(`${api}/videos`).then((rsp) => {
+			console.dir(rsp)
+		})
+	}, [])
+
 	const videos = useMemo(
 		() =>
 			fakeVideos.map((v) => ({
@@ -83,7 +92,7 @@ const App = () => {
 				children={({ match }) => (
 					<VideoList
 						className={classes.list}
-						active={match?.params.videoID}
+						active={match?.params?.videoID}
 						videos={videos}
 					/>
 				)}
@@ -91,9 +100,17 @@ const App = () => {
 
 			<div className={classes.video}>
 				<Switch>
-					<Route path="/:videoID">
-						<video controls />
-					</Route>
+					<Route
+						path="/:videoID"
+						children={({ match }) =>
+							videos.find(({ slug }) => match?.params?.videoID === slug) !=
+							null ? (
+								<video controls />
+							) : (
+								<h2>Unknown Video: {match?.params?.videoID}</h2>
+							)
+						}
+					/>
 					<Route path="/">
 						<img alt="No Video" src={noThumbnail} />
 					</Route>
