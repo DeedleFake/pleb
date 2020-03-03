@@ -9,11 +9,10 @@
     "prettier": "^1.19.1",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
+    "react-jss": "^10.0.4",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.0",
-    "rimraf": "^3.0.2",
-    "semantic-ui-css": "^2.4.1",
-    "semantic-ui-react": "^0.88.2"
+    "rimraf": "^3.0.2"
   },
   "scripts": {
     "start": "BROWSER=none react-scripts start",

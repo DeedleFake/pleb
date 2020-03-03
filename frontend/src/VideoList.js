@@ -1,39 +1,91 @@
 // @format
 
 import React from 'react'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { createUseStyles } from 'react-jss'
 
-import { Divider, Menu } from 'semantic-ui-react'
+import noThumbnail from './assets/nothumbnail.gif'
 
-const fakeVideos = [
-	'A Fake Video.mp4',
-	'Another Fake Video.webm',
-	'Unreal Video.mp4',
-]
+const useStyles = createUseStyles({
+	main: {
+		display: 'flex',
+		flexDirection: 'column',
+	},
 
-const removeExtension = (filename) => filename.replace(/\.[a-zA-Z0-9]+$/, '')
+	video: {
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
 
-const toSlug = (filename) =>
-	filename.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')
+		color: 'black',
+		textDecoration: 'none',
+		marginTop: 16,
+		padding: 16,
+		borderRadius: 16,
 
-const VideoList = () => {
-	const location = useLocation()
-	const { videoID } = useParams()
+		'&:first-child': {
+			marginTop: 0,
+		},
+
+		'&:hover': {
+			backgroundColor: 'gray',
+		},
+
+		'&:visited': {
+			color: 'black',
+		},
+
+		'&.active': {
+			backgroundColor: 'darkgray',
+			color: 'white',
+		},
+	},
+
+	thumbnail: {
+		flex: '0 0 64px',
+		marginRight: 16,
+	},
+
+	info: {
+		display: 'flex',
+		flexDirection: 'column',
+	},
+
+	title: {
+		fontSize: 20,
+	},
+
+	time: {
+		color: 'purple',
+		fontSize: 16,
+	},
+})
+
+const classList = (...classes) => classes.filter((v) => v).join(' ')
+
+const VideoList = ({ className, active, videos }) => {
+	const classes = useStyles()
 
 	return (
-		<Menu fluid vertical tabular>
-			<Menu.Item active={location.pathname === '/'}>
-				<Link to="/">Video List</Link>
-			</Menu.Item>
-			<Divider />
-			{fakeVideos.map((v) => (
-				<Menu.Item key={v} active={videoID === toSlug(removeExtension(v))}>
-					<Link to={`/${toSlug(removeExtension(v))}`}>
-						{removeExtension(v)}
-					</Link>
-				</Menu.Item>
+		<nav className={classList(classes.main, className)}>
+			{videos.map(({ thumbnail, time, slug, title }) => (
+				<Link
+					key={slug}
+					className={classList(classes.video, active === slug && 'active')}
+					to={`/${active !== slug ? slug : ''}`}
+				>
+					<img
+						className={classes.thumbnail}
+						alt="Thumbnail"
+						src={thumbnail || noThumbnail}
+					/>
+					<div className={classes.info}>
+						<span className={classes.title}>{title}</span>
+						<span className={classes.time}>{time}</span>
+					</div>
+				</Link>
 			))}
-		</Menu>
+		</nav>
 	)
 }
 
