@@ -1,26 +1,93 @@
 package main
 
 import (
-	"bytes"
+	"encoding/json"
+	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
-
-	"github.com/spkg/zipfs"
+	"path/filepath"
+	"runtime"
 )
 
-//go:generate go run ../../internal/cmd/embed -o embed.go ../../frontend/build
+func logHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		log.Printf("%v %v", req.Method, req.URL.Path)
+		h.ServeHTTP(rw, req)
+	})
+}
+
+func errorHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		defer func() {
+			switch err := recover().(type) {
+			case nil:
+				return
+
+			case runtime.Error:
+				log.Printf("Runtime error: %v", err)
+				http.Error(rw, "Internal error", http.StatusInternalServerError)
+
+			default:
+				log.Printf("Error: %v", err)
+				http.Error(rw, fmt.Sprint(err), http.StatusInternalServerError)
+			}
+		}()
+
+		h.ServeHTTP(rw, req)
+	})
+}
+
+func videoHandler(root string) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Set("Content-Type", "application/json")
+
+		dir, err := os.Open(root)
+		if err != nil {
+			panic(err)
+		}
+		defer dir.Close()
+
+		files, err := dir.Readdir(-1)
+		if err != nil {
+			panic(err)
+		}
+
+		data := make([]map[string]interface{}, 0, len(files))
+		for _, file := range files {
+			if file.IsDir() {
+				continue
+			}
+			switch filepath.Ext(file.Name()) {
+			case ".mp4", ".webm", ".avi":
+			default:
+				continue
+			}
+
+			data = append(data, map[string]interface{}{
+				"time": file.ModTime(),
+				"file": file.Name(),
+			})
+		}
+
+		e := json.NewEncoder(rw)
+		err = e.Encode(data)
+		if err != nil {
+			panic(err)
+		}
+	})
+}
 
 func main() {
-	pub, err := zipfs.NewFromReaderAt(bytes.NewReader(embed[:]), int64(len(embed)), nil)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
+	videos := flag.String("videos", "videos", "Directory containing the videos.")
+	flag.Parse()
 
-	http.Handle("/", zipfs.FileServer(pub))
+	http.Handle("/videos.json", logHandler(errorHandler(videoHandler(*videos))))
+	http.Handle("/", logHandler(pubHandler()))
 
-	err = http.ListenAndServe(":8080", nil)
+	log.Println("Starting server...")
+	err := http.ListenAndServe(":8080", nil)
 	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	os.Exit(1)
 }
