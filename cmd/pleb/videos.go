@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/DeedleFake/pleb/internal/vidutil"
@@ -59,11 +62,21 @@ func thumbnailHandler(root string) http.Handler {
 
 		d, err := vidutil.Duration(req.Context(), file)
 		if err != nil {
+			var eerr *exec.ExitError
+			if errors.As(err, &eerr) {
+				log.Printf("%s", eerr.Stderr)
+			}
+
 			panic(err)
 		}
 
 		err = vidutil.Frame(req.Context(), rw, file, d/3)
 		if err != nil {
+			var eerr *exec.ExitError
+			if errors.As(err, &eerr) {
+				log.Printf("%s", eerr.Stderr)
+			}
+
 			panic(err)
 		}
 	})
