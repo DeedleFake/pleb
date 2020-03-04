@@ -39,10 +39,8 @@ func errorHandler(h http.Handler) http.Handler {
 	})
 }
 
-func videoHandler(root string) http.Handler {
+func videoListHandler(root string) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		rw.Header().Set("Content-Type", "application/json")
-
 		dir, err := os.Open(root)
 		if err != nil {
 			panic(err)
@@ -79,11 +77,18 @@ func videoHandler(root string) http.Handler {
 	})
 }
 
+func videoHandler(root string) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		http.ServeFile(rw, req, filepath.Join(root, req.URL.Path))
+	})
+}
+
 func main() {
 	videos := flag.String("videos", "videos", "Directory containing the videos.")
 	flag.Parse()
 
-	http.Handle("/videos.json", logHandler(errorHandler(videoHandler(*videos))))
+	http.Handle("/videos/", logHandler(errorHandler(http.StripPrefix("/videos/", videoHandler(*videos)))))
+	http.Handle("/videos.json", logHandler(errorHandler(videoListHandler(*videos))))
 	http.Handle("/", logHandler(pubHandler()))
 
 	log.Println("Starting server...")
