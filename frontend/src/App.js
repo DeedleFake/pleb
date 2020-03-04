@@ -103,6 +103,7 @@ const App = () => {
 					time: new Date(video.time),
 					slug: toSlug(removeExtension(video.file)),
 					title: removeExtension(video.file),
+					thumbnail: `/thumbnail/${video.file}`,
 				}))
 				.sort(sorts[sort] || sorts['name']),
 		[rawVideos, sort],
