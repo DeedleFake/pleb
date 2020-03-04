@@ -1,7 +1,13 @@
 // @format
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { Switch, Route } from 'react-router-dom'
+import {
+	Switch,
+	Route,
+	Prompt,
+	useRouteMatch,
+	useHistory,
+} from 'react-router-dom'
 import { createUseStyles } from 'react-jss'
 
 import axios from 'axios'
@@ -86,6 +92,11 @@ const useStyles = createUseStyles({
 const App = () => {
 	const classes = useStyles()
 
+	const history = useHistory()
+	const { params: { videoID } = {} } = useRouteMatch('/:videoID') || {}
+
+	const [videoPlaying, setVideoPlaying] = useState(false)
+
 	const [rawVideos, setRawVideos] = useState([])
 	const [sort, setSort] = useState('name')
 
@@ -109,50 +120,69 @@ const App = () => {
 		[rawVideos, sort],
 	)
 
+	const currentVideo = useMemo(
+		() => videos.find(({ slug }) => videoID === slug),
+		[videos, videoID],
+	)
+
+	useEffect(() => {
+		const unlisten = history.listen((location, action) => {
+			setVideoPlaying(false)
+		})
+
+		return unlisten
+	}, [history])
+
 	return (
-		<div className={classes.main}>
-			<div className={classes.listWrapper}>
-				<div className={classes.listSort}>
-					<span>Sort:</span>
-					<select onChange={(ev) => setSort(ev.target.value)}>
-						<option value="name">Name</option>
-						<option value="time">Time</option>
-					</select>
+		<>
+			<Prompt
+				when={videoPlaying}
+				message="You appear to be in the middle of a video. Are you sure that you want to switch pages?"
+			/>
+
+			<div className={classes.main}>
+				<div className={classes.listWrapper}>
+					<div className={classes.listSort}>
+						<span>Sort:</span>
+						<select onChange={(ev) => setSort(ev.target.value)}>
+							<option value="name">Name</option>
+							<option value="time">Time</option>
+						</select>
+					</div>
+					<VideoList
+						className={classes.list}
+						active={videoID}
+						videos={videos}
+					/>
 				</div>
 
-				<Route
-					path="/:videoID"
-					children={({ match }) => (
-						<VideoList
-							className={classes.list}
-							active={match?.params?.videoID}
-							videos={videos}
-						/>
-					)}
-				/>
+				<div className={classes.video}>
+					<Switch>
+						<Route path="/:videoID">
+							{currentVideo != null ? (
+								<video
+									controls
+									src={`/videos/${currentVideo.file}`}
+									onPlay={(ev) => {
+										setVideoPlaying(true)
+										window.onbeforeunload = () => true
+									}}
+									onEnded={(ev) => {
+										setVideoPlaying(false)
+										window.onbeforeunload = null
+									}}
+								/>
+							) : (
+								<h2>Unknown Video: {videoID}</h2>
+							)}
+						</Route>
+						<Route path="/">
+							<img alt="No Video" src={noThumbnail} />
+						</Route>
+					</Switch>
+				</div>
 			</div>
-
-			<div className={classes.video}>
-				<Switch>
-					<Route
-						path="/:videoID"
-						children={({ match }) => {
-							const video = videos.find(
-								({ slug }) => match?.params?.videoID === slug,
-							)
-							if (video == null) {
-								return <h2>Unknown Video: {match?.params?.videoID}</h2>
-							}
-
-							return <video controls src={`/videos/${video.file}`} />
-						}}
-					/>
-					<Route path="/">
-						<img alt="No Video" src={noThumbnail} />
-					</Route>
-				</Switch>
-			</div>
-		</div>
+		</>
 	)
 }
 
