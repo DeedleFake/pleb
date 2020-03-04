@@ -6,7 +6,7 @@ WORKDIR /src
 RUN yarn
 RUN yarn build
 
-FROM golang AS backend
+FROM golang:alpine AS backend
 
 COPY . /src
 
