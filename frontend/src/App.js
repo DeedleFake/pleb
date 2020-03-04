@@ -11,6 +11,7 @@ import {
 import { createUseStyles } from 'react-jss'
 
 import axios from 'axios'
+import FuzzySearch from 'fuzzy-search'
 
 import VideoList from './VideoList'
 
@@ -49,20 +50,30 @@ const useStyles = createUseStyles({
 		margin: 16,
 	},
 
-	listSort: {
+	listAdjust: {
 		display: 'flex',
-		flexDirection: 'row',
+		flexDirection: 'column',
 
-		fontSize: 20,
+		'& > div': {
+			display: 'flex',
+			flexDirection: 'row',
 
-		'& > *': {
-			flex: 1,
-			marginLeft: 8,
+			fontSize: 20,
+			marginTop: 8,
+
+			'& > *': {
+				flex: 1,
+				marginLeft: 8,
+			},
+
+			'& >*:first-child': {
+				flex: 0,
+				marginLeft: 0,
+			},
 		},
 
-		'& >*:first-child': {
-			flex: 0,
-			marginLeft: 0,
+		'& > div:first-child': {
+			marginTop: 0,
 		},
 	},
 
@@ -98,7 +109,9 @@ const App = () => {
 	const [videoPlaying, setVideoPlaying] = useState(false)
 
 	const [rawVideos, setRawVideos] = useState([])
+	const [search, setSearch] = useState('')
 	const [sort, setSort] = useState('name')
+	const [sortAsc, setSortAsc] = useState(false)
 
 	useEffect(() => {
 		axios.get('/videos.json').then((rsp) => {
@@ -106,7 +119,7 @@ const App = () => {
 		})
 	}, [])
 
-	const videos = useMemo(
+	const adjustedVideos = useMemo(
 		() =>
 			rawVideos
 				.map((video) => ({
@@ -116,8 +129,22 @@ const App = () => {
 					title: removeExtension(video.file),
 					thumbnail: `/thumbnail/${video.file}`,
 				}))
-				.sort(sorts[sort] || sorts['name']),
-		[rawVideos, sort],
+				.sort(
+					((f) => (sortAsc ? (v1, v2) => -f(v1, v2) : f))(
+						sorts[sort] || sorts['name'],
+					),
+				),
+		[rawVideos, sort, sortAsc],
+	)
+
+	const searcher = useMemo(
+		() => new FuzzySearch(adjustedVideos, ['title'], { sort: true }),
+		[adjustedVideos],
+	)
+
+	const videos = useMemo(
+		() => (search === '' ? adjustedVideos : searcher.search(search)),
+		[search, adjustedVideos, searcher],
 	)
 
 	const currentVideo = useMemo(
@@ -142,12 +169,29 @@ const App = () => {
 
 			<div className={classes.main}>
 				<div className={classes.listWrapper}>
-					<div className={classes.listSort}>
-						<span>Sort:</span>
-						<select onChange={(ev) => setSort(ev.target.value)}>
-							<option value="name">Name</option>
-							<option value="time">Time</option>
-						</select>
+					<div className={classes.listAdjust}>
+						<div>
+							<span>Search:</span>
+							<input
+								type="text"
+								placeholder="Filter videos..."
+								value={search}
+								onChange={(ev) => setSearch(ev.target.value)}
+							/>
+						</div>
+						<div>
+							<span>Sort:</span>
+							<select
+								disabled={search !== ''}
+								onChange={(ev) => setSort(ev.target.value)}
+							>
+								<option value="name">Name</option>
+								<option value="time">Time</option>
+							</select>
+							<button onClick={(ev) => setSortAsc(!sortAsc)}>
+								{sortAsc ? 'Ascending' : 'Descending'}
+							</button>
+						</div>
 					</div>
 					<VideoList
 						className={classes.list}

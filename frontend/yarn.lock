@@ -5984,6 +5984,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"fuzzy-search@npm:^3.2.1":
+  version: 3.2.1
+  resolution: "fuzzy-search@npm:3.2.1"
+  checksum: 2/86ede322eec76dd5582092c0ee6701ce910178c5b04d286ca73e601c2d9c2e30572713f1aa408e7f521a09495e3c68708ea26e0068b712a991c64463eb9ed7e2
+  languageName: node
+  linkType: hard
+
 "gauge@npm:~2.7.3":
   version: 2.7.4
   resolution: "gauge@npm:2.7.4"
@@ -10074,6 +10081,7 @@ fsevents@^1.2.7:
     "@testing-library/react": ^9.3.2
     "@testing-library/user-event": ^7.1.2
     axios: ^0.19.2
+    fuzzy-search: ^3.2.1
     prettier: ^1.19.1
     react: ^16.13.0
     react-dom: ^16.13.0

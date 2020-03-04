@@ -7,6 +7,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.2",
+    "fuzzy-search": "^3.2.1",
     "prettier": "^1.19.1",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
@@ -19,7 +20,7 @@
     "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "clean": "rimraf build",
-		"prettier": "find src -iname '*.js' -exec prettier --write \\{\\} +"
+    "prettier": "find src -iname '*.js' -exec prettier --write \\{\\} +"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -37,16 +38,16 @@
     ]
   },
   "proxy": "http://localhost:8080",
-	"prettier": {
-		"printWidth": 80,
-		"tabWidth": 2,
-		"useTabs": true,
-		"semi": false,
-		"singleQuote": true,
-		"bracketSpacing": true,
-		"jsxBracketSameLine": false,
-		"arrowParens": "always",
-		"trailingComma": "all",
-		"proseWrap": "preserve"
-	}
+  "prettier": {
+    "printWidth": 80,
+    "tabWidth": 2,
+    "useTabs": true,
+    "semi": false,
+    "singleQuote": true,
+    "bracketSpacing": true,
+    "jsxBracketSameLine": false,
+    "arrowParens": "always",
+    "trailingComma": "all",
+    "proseWrap": "preserve"
+  }
 }
