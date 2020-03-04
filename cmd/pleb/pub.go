@@ -20,5 +20,18 @@ func pubHandler() http.Handler {
 		os.Exit(1)
 	}
 
-	return zipfs.FileServer(pub)
+	return http.FileServer(&notFoundRedirector{fs: pub, target: "/index.html"})
+}
+
+type notFoundRedirector struct {
+	fs     http.FileSystem
+	target string
+}
+
+func (r notFoundRedirector) Open(path string) (http.File, error) {
+	f, err := r.fs.Open(path)
+	if os.IsNotExist(err) {
+		return r.fs.Open(r.target)
+	}
+	return f, err
 }
