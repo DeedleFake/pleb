@@ -18,7 +18,8 @@
   "scripts": {
     "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build",
-    "clean": "rimraf build"
+    "clean": "rimraf build",
+		"prettier": "find src -iname '*.js' -exec prettier --write \\{\\} +"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -35,5 +36,17 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:8080"
+  "proxy": "http://localhost:8080",
+	"prettier": {
+		"printWidth": 80,
+		"tabWidth": 2,
+		"useTabs": true,
+		"semi": false,
+		"singleQuote": true,
+		"bracketSpacing": true,
+		"jsxBracketSameLine": false,
+		"arrowParens": "always",
+		"trailingComma": "all",
+		"proseWrap": "preserve"
+	}
 }

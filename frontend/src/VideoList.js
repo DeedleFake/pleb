@@ -81,7 +81,7 @@ const VideoList = ({ className, active, videos }) => {
 					/>
 					<div className={classes.info}>
 						<span className={classes.title}>{title}</span>
-						<span className={classes.time}>{time}</span>
+						<span className={classes.time}>{time.toLocaleString()}</span>
 					</div>
 				</Link>
 			))}

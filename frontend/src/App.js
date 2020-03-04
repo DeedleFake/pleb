@@ -1,6 +1,6 @@
 // @format
 
-import React, { useMemo, useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { Switch, Route } from 'react-router-dom'
 import { createUseStyles } from 'react-jss'
 
@@ -10,21 +10,15 @@ import VideoList from './VideoList'
 
 import noThumbnail from './assets/nothumbnail.gif'
 
-const api = process.env.NODE_ENV === 'production' ? process.env.PUBLIC_URL : 'http://localhost:8080'
-
 const removeExtension = (filename) => filename.replace(/\.[a-zA-Z0-9]+$/, '')
 
 const toSlug = (filename) =>
 	filename.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')
 
-const fakeVideos = [
-	{ time: new Date('January 2nd, 2920').toString(), file: 'A Fake Video.mp4' },
-	{
-		time: new Date('April, 12th, 500').toString(),
-		file: 'Another Fake Video.webm',
-	},
-	{ time: new Date('March 3rd, 1920').toString(), file: 'Unreal Video.mp4' },
-]
+const sorts = {
+	name: (v1, v2) => v1.file.toLowerCase().localeCompare(v2.file.toLowerCase()),
+	time: (v1, v2) => v2.time.getTime() - v1.time.getTime(),
+}
 
 const useStyles = createUseStyles({
 	'@global': {
@@ -43,12 +37,35 @@ const useStyles = createUseStyles({
 		alignItems: 'start',
 	},
 
+	listWrapper: {
+		display: 'flex',
+		flexDirection: 'column',
+		margin: 16,
+	},
+
+	listSort: {
+		display: 'flex',
+		flexDirection: 'row',
+
+		fontSize: 20,
+
+		'& > *': {
+			flex: 1,
+			marginLeft: 8,
+		},
+
+		'& >*:first-child': {
+			flex: 0,
+			marginLeft: 0,
+		},
+	},
+
 	list: {
 		display: 'flex',
 
 		flex: 1,
 		maxWidth: 400,
-		margin: 16,
+		marginTop: 16,
 	},
 
 	video: {
@@ -69,47 +86,65 @@ const useStyles = createUseStyles({
 const App = () => {
 	const classes = useStyles()
 
+	const [rawVideos, setRawVideos] = useState([])
+	const [sort, setSort] = useState('name')
+
 	useEffect(() => {
-		axios.get(`${api}/videos`).then((rsp) => {
-			console.dir(rsp)
+		axios.get('/videos.json').then((rsp) => {
+			setRawVideos(rsp.data)
 		})
 	}, [])
 
 	const videos = useMemo(
 		() =>
-			fakeVideos.map((v) => ({
-				...v,
-				slug: toSlug(removeExtension(v.file)),
-				title: removeExtension(v.file),
-			})),
-		[],
+			rawVideos
+				.map((video) => ({
+					...video,
+					time: new Date(video.time),
+					slug: toSlug(removeExtension(video.file)),
+					title: removeExtension(video.file),
+				}))
+				.sort(sorts[sort] || sorts['name']),
+		[rawVideos, sort],
 	)
 
 	return (
 		<div className={classes.main}>
-			<Route
-				path="/:videoID"
-				children={({ match }) => (
-					<VideoList
-						className={classes.list}
-						active={match?.params?.videoID}
-						videos={videos}
-					/>
-				)}
-			/>
+			<div className={classes.listWrapper}>
+				<div className={classes.listSort}>
+					<span>Sort:</span>
+					<select onChange={(ev) => setSort(ev.target.value)}>
+						<option value="name">Name</option>
+						<option value="time">Time</option>
+					</select>
+				</div>
+
+				<Route
+					path="/:videoID"
+					children={({ match }) => (
+						<VideoList
+							className={classes.list}
+							active={match?.params?.videoID}
+							videos={videos}
+						/>
+					)}
+				/>
+			</div>
 
 			<div className={classes.video}>
 				<Switch>
 					<Route
 						path="/:videoID"
-						children={({ match }) =>
-							videos.find(({ slug }) => match?.params?.videoID === slug) !=
-							null ? (
-								<video controls />
-							) : (
-								<h2>Unknown Video: {match?.params?.videoID}</h2>
+						children={({ match }) => {
+							const video = videos.find(
+								({ slug }) => match?.params?.videoID === slug,
 							)
-						}
+							if (video == null) {
+								return <h2>Unknown Video: {match?.params?.videoID}</h2>
+							}
+
+							return <video controls src={`/videos/${video.file}`} />
+						}}
 					/>
 					<Route path="/">
 						<img alt="No Video" src={noThumbnail} />
