@@ -20,7 +20,11 @@ import noThumbnail from './assets/nothumbnail.gif'
 const removeExtension = (filename) => filename.replace(/\.[a-zA-Z0-9]+$/, '')
 
 const toSlug = (filename) =>
-	filename.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')
+	filename
+		.toLowerCase()
+		.replace(/[^a-zA-Z0-9]+/g, '-')
+		.replace(/^-/, '')
+		.replace(/-$/, '')
 
 const sorts = {
 	name: (v1, v2) => v1.file.toLowerCase().localeCompare(v2.file.toLowerCase()),
