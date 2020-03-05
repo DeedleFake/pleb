@@ -6,6 +6,12 @@ pleb
 
 Pleb is a very simple local-network oriented video streaming site. All you have to do is throw an MP4 or other compatible video file into a specified directory, and it will show up in a list of streamable videos in the browser interface. That's it. No fancy client. No fancy database. Nothing. Just stick a file in a directory and watch it in your browser.
 
+![Screenshot](https://user-images.githubusercontent.com/326750/76006704-e1a83480-5eda-11ea-9581-84b62f44c1d4.png)
+
+It even looks nice on phones, although your mileage may vary in Chrome due to WebKit, and by extension Blink, being a buggy flaming garbage fire, especially when it comes to flexbox. This particular screenshot was taken in Brave, so it seems to be working for now at least.
+
+<img width="300" alt="Phone Screenshot" src="https://user-images.githubusercontent.com/326750/76007439-09e46300-5edc-11ea-9190-35e7625788c2.jpg" />
+
 Dependencies
 ------------
 
