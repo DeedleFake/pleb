@@ -158,6 +158,16 @@ const App = () => {
 	)
 
 	useEffect(() => {
+		console.dir(process.env)
+		if (currentVideo == null) {
+			document.title = process.env.REACT_APP_TITLE
+			return
+		}
+
+		document.title = `${currentVideo.title} :: ${process.env.REACT_APP_TITLE}`
+	}, [currentVideo])
+
+	useEffect(() => {
 		const unlisten = history.listen((location, action) => {
 			setVideoPlaying(false)
 		})
