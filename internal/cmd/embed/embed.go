@@ -79,13 +79,23 @@ func zipPath(z *zip.Writer, root string) (err error) {
 	return nil
 }
 
-func createOutput(output string, r io.Reader, pkg, name string) error {
+func createOutput(output string, r io.Reader, pkg, name, tags string) error {
+	if tags != "" {
+		tags = "// +build " + tags + "\n\n"
+	}
+
 	var buf bytes.Buffer
 
-	fmt.Fprintf(&buf, `package %v
+	fmt.Fprintf(
+		&buf,
+		`%vpackage %v
 
 var %v = [...]byte{
-`, pkg, name)
+`,
+		tags,
+		pkg,
+		name,
+	)
 
 	var line [32]byte
 	for {
@@ -132,6 +142,7 @@ func main() {
 	output := flag.String("o", "embed.go", "Output file.")
 	pkg := flag.String("pkg", "main", "Package name of produced file.")
 	name := flag.String("var", "embed", "Variable name of zip file.")
+	tags := flag.String("tags", "", "Build tags to add to the output.")
 	flag.Parse()
 
 	path := flag.Arg(0)
@@ -155,7 +166,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = createOutput(*output, &buf, *pkg, *name)
+	err = createOutput(*output, &buf, *pkg, *name, *tags)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
