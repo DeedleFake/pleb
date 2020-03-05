@@ -1,3 +1,15 @@
+// The embed command embeds a directory structure into Go code.
+//
+// To embed a directory, a Go file is produced containing the raw
+// bytes of a zip file with that directory structure in it as a byte
+// array.
+//
+// Example:
+//
+//    embed -o embed.go -pkg main assets
+//
+// This will produce a file called embed.go containing a byte array
+// called embed.
 package main
 
 import (

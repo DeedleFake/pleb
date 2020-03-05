@@ -1,3 +1,9 @@
+// The pleb command runs the pleb server.
+//
+// The pleb server runs a very simple HTTP server. It has support for
+// HTTPS, but that's about it in terms of fancy features. All frontend
+// assets are embedded into the binary, so there's no need to run it
+// in any particular location.
 package main
 
 import (

@@ -1,3 +1,4 @@
+// Package vidutil contains utility functions for dealing with video files.
 package vidutil
 
 import (
@@ -9,6 +10,7 @@ import (
 	"time"
 )
 
+// Duration returns the durection of a video.
 func Duration(ctx context.Context, file string) (time.Duration, error) {
 	ffprobe := exec.CommandContext(
 		ctx,
@@ -37,6 +39,8 @@ func Duration(ctx context.Context, file string) (time.Duration, error) {
 	return time.Duration(sec * float64(time.Second)), nil
 }
 
+// Frame converts the frame at the given timestamp in file to a PNG
+// and writes the raw bytes to w.
 func Frame(ctx context.Context, w io.Writer, file string, timestamp time.Duration) error {
 	ffmpeg := exec.CommandContext(
 		ctx,
