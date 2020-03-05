@@ -2,7 +2,7 @@ pleb
 ====
 
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/deedlefake/pleb)](https://hub.docker.com/r/deedlefake/pleb/builds)
-![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/DeedleFake/pleb?label=version)
+[![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/DeedleFake/pleb?label=version)](https://pkg.go.dev/github.com/DeedleFake/pleb?tab=overview)
 
 Pleb is a very simple local-network oriented video streaming site. All you have to do is throw an MP4 or other compatible video file into a specified directory, and it will show up in a list of streamable videos in the browser interface. That's it. No fancy client. No fancy database. Nothing. Just stick a file in a directory and watch it in your browser.
 
