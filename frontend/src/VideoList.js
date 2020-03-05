@@ -4,7 +4,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { createUseStyles } from 'react-jss'
 
-import noThumbnail from './assets/nothumbnail.gif'
+import placeholderImage from './assets/placeholder.gif'
 
 const useStyles = createUseStyles({
 	main: {
@@ -77,7 +77,7 @@ const VideoList = ({ className, active, videos }) => {
 					<img
 						className={classes.thumbnail}
 						alt="Thumbnail"
-						src={thumbnail || noThumbnail}
+						src={thumbnail || placeholderImage}
 					/>
 					<div className={classes.info}>
 						<span className={classes.title}>{title}</span>

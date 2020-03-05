@@ -15,7 +15,7 @@ import FuzzySearch from 'fuzzy-search'
 
 import VideoList from './VideoList'
 
-import noThumbnail from './assets/nothumbnail.gif'
+import placeholderVideo from './assets/placeholder.mp4'
 
 const removeExtension = (filename) => filename.replace(/\.[a-zA-Z0-9]+$/, '')
 
@@ -230,7 +230,7 @@ const App = () => {
 							)}
 						</Route>
 						<Route path="/">
-							<img alt="No Video" src={noThumbnail} />
+							<video autoPlay muted loop playsInline src={placeholderVideo} />
 						</Route>
 					</Switch>
 				</div>
