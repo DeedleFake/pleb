@@ -193,7 +193,10 @@ const App = () => {
 								<option value="name">Name</option>
 								<option value="time">Time</option>
 							</select>
-							<button onClick={(ev) => setSortAsc(!sortAsc)}>
+							<button
+								disabled={search !== ''}
+								onClick={(ev) => setSortAsc(!sortAsc)}
+							>
 								{sortAsc ? 'Ascending' : 'Descending'}
 							</button>
 						</div>
@@ -212,6 +215,7 @@ const App = () => {
 								<video
 									controls
 									src={`/videos/${currentVideo.file}`}
+									poster={currentVideo.thumbnail}
 									onPlay={(ev) => {
 										setVideoPlaying(true)
 										window.onbeforeunload = () => true

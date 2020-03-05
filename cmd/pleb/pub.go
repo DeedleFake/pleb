@@ -11,7 +11,7 @@ import (
 	"github.com/spkg/zipfs"
 )
 
-//go:generate go run ../../internal/cmd/embed -o embed.go ../../frontend/build
+//go:generate go run ../../internal/cmd/embed -o embed.go -tags !dev ../../frontend/build
 
 func pubHandler() http.Handler {
 	pub, err := zipfs.NewFromReaderAt(bytes.NewReader(embed[:]), int64(len(embed)), nil)

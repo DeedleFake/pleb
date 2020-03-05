@@ -38,6 +38,7 @@ func errorHandler(h http.Handler) http.Handler {
 }
 
 func main() {
+	addr := flag.String("addr", ":8080", "Address to listen on.")
 	videos := flag.String("videos", "videos", "Directory containing the videos.")
 	flag.Parse()
 
@@ -47,7 +48,7 @@ func main() {
 	http.Handle("/", logHandler(pubHandler()))
 
 	log.Println("Starting server...")
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(*addr, nil)
 	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	os.Exit(1)
 }
