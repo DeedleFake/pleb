@@ -8,13 +8,18 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/DeedleFake/pleb/internal/frontend"
 	"github.com/spkg/zipfs"
 )
 
-//go:generate go run ../../internal/cmd/embed -o embed.go -tags !dev ../../frontend/build
+//go:generate go run ../../internal/cmd/embed -o ../../internal/frontend/embed.go -tags !dev -pkg frontend -var Zip ../../frontend/build
 
 func pubHandler() http.Handler {
-	pub, err := zipfs.NewFromReaderAt(bytes.NewReader(embed[:]), int64(len(embed)), nil)
+	pub, err := zipfs.NewFromReaderAt(
+		bytes.NewReader(frontend.Zip[:]),
+		int64(len(frontend.Zip)),
+		nil,
+	)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
