@@ -158,7 +158,6 @@ const App = () => {
 	)
 
 	useEffect(() => {
-		console.dir(process.env)
 		if (currentVideo == null) {
 			document.title = process.env.REACT_APP_TITLE
 			return
