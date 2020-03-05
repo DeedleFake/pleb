@@ -45,6 +45,7 @@ const useStyles = createUseStyles({
 		display: 'flex',
 		flexDirection: 'row',
 		flexWrap: 'wrap-reverse',
+		justifyContent: 'center',
 		alignItems: 'start',
 	},
 
@@ -52,6 +53,8 @@ const useStyles = createUseStyles({
 		display: 'flex',
 		flexDirection: 'column',
 		margin: 16,
+
+		flex: '0 1 400px',
 	},
 
 	listAdjust: {
@@ -84,8 +87,6 @@ const useStyles = createUseStyles({
 	list: {
 		display: 'flex',
 
-		flex: 1,
-		maxWidth: 400,
 		marginTop: 16,
 	},
 
@@ -94,8 +95,7 @@ const useStyles = createUseStyles({
 		flexDirection: 'column',
 		alignItems: 'center',
 
-		flex: 1,
-		minWidth: 400,
+		flex: '1 1 400px',
 		margin: 16,
 
 		'& > img, & > video': {
