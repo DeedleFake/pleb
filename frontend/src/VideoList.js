@@ -42,8 +42,19 @@ const useStyles = createUseStyles({
 	},
 
 	thumbnail: {
+		display: 'flex',
+		flexDirection: 'column',
+		justifyContent: 'center',
+		alignItems: 'center',
+
 		flex: '0 0 64px',
+		height: 64,
 		marginRight: 16,
+
+		'& > img': {
+			maxWidth: '100%',
+			maxHeight: '100%',
+		},
 	},
 
 	info: {
@@ -74,11 +85,9 @@ const VideoList = ({ className, active, videos }) => {
 					className={classList(classes.video, active === slug && 'active')}
 					to={`/${active !== slug ? slug : ''}`}
 				>
-					<img
-						className={classes.thumbnail}
-						alt="Thumbnail"
-						src={thumbnail || placeholderImage}
-					/>
+					<div className={classes.thumbnail}>
+						<img alt="Thumbnail" src={thumbnail || placeholderImage} />
+					</div>
 					<div className={classes.info}>
 						<span className={classes.title}>{title}</span>
 						<span className={classes.time}>{time.toLocaleString()}</span>
