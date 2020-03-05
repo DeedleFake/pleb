@@ -39,6 +39,8 @@ func errorHandler(h http.Handler) http.Handler {
 
 func main() {
 	addr := flag.String("addr", ":8080", "Address to listen on.")
+	tlscert := flag.String("tls.cert", "", "TLS certificate to use. Specifying activates HTTPS mode.")
+	tlskey := flag.String("tls.key", "", "TLS key to use. Specifiying activates HTTPS mode.")
 	videos := flag.String("videos", "videos", "Directory containing the videos.")
 	flag.Parse()
 
@@ -47,8 +49,17 @@ func main() {
 	http.Handle("/videos.json", logHandler(errorHandler(videoListHandler(*videos))))
 	http.Handle("/", logHandler(pubHandler()))
 
+	listen := func() error {
+		return http.ListenAndServe(*addr, nil)
+	}
+	if *tlscert != *tlskey {
+		listen = func() error {
+			return http.ListenAndServeTLS(*addr, *tlscert, *tlskey, nil)
+		}
+	}
+
 	log.Println("Starting server...")
-	err := http.ListenAndServe(*addr, nil)
+	err := listen()
 	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	os.Exit(1)
 }
