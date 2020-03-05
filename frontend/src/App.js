@@ -98,7 +98,8 @@ const useStyles = createUseStyles({
 		minWidth: 400,
 		margin: 16,
 
-		'& > img': {
+		'& > img, & > video': {
+			maxWidth: '100%',
 			maxHeight: 720,
 		},
 	},
