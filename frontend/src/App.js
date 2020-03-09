@@ -13,7 +13,8 @@ import { createUseStyles } from 'react-jss'
 import axios from 'axios'
 import FuzzySearch from 'fuzzy-search'
 
-import VideoList from './VideoList'
+import VideoList from './VideoList.js'
+import * as theme from './theme.js'
 
 import placeholderVideo from './assets/placeholder.mp4'
 
@@ -35,7 +36,8 @@ const useStyles = createUseStyles({
 	'@global': {
 		body: {
 			fontFamily: 'Arial',
-			backgroundColor: 'lightgray',
+			color: theme.color.text,
+			backgroundColor: theme.color.background,
 			margin: 0,
 			padding: 0,
 		},
