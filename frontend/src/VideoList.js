@@ -4,6 +4,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { createUseStyles } from 'react-jss'
 
+import * as theme from './theme.js'
+
 import placeholderImage from './assets/placeholder.gif'
 
 const useStyles = createUseStyles({
@@ -17,7 +19,6 @@ const useStyles = createUseStyles({
 		flexDirection: 'row',
 		alignItems: 'center',
 
-		color: 'black',
 		textDecoration: 'none',
 		marginTop: 16,
 		padding: 16,
@@ -28,16 +29,15 @@ const useStyles = createUseStyles({
 		},
 
 		'&:hover': {
-			backgroundColor: 'gray',
+			backgroundColor: theme.color.secondary,
 		},
 
 		'&:visited': {
-			color: 'black',
+			color: theme.color.text,
 		},
 
 		'&.active': {
-			backgroundColor: 'darkgray',
-			color: 'white',
+			backgroundColor: theme.color.primary,
 		},
 	},
 
@@ -67,7 +67,7 @@ const useStyles = createUseStyles({
 	},
 
 	time: {
-		color: 'purple',
+		color: theme.color.secondaryText,
 		fontSize: 16,
 	},
 })
