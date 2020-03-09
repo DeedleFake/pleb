@@ -104,6 +104,14 @@ const useStyles = createUseStyles({
 			maxWidth: '100%',
 			maxHeight: 720,
 		},
+
+		'& > *': {
+			marginTop: 16,
+		},
+
+		'& > *:first-child': {
+			marginTop: 0,
+		},
 	},
 })
 
@@ -133,8 +141,14 @@ const App = () => {
 					...video,
 					time: new Date(video.time),
 					slug: toSlug(removeExtension(video.file)),
-					title: removeExtension(video.file),
+					title: video.sub == null ? removeExtension(video.file) : video.file,
 					thumbnail: `/thumbnail/${video.file}`,
+
+					sub: video?.sub?.map((s) => ({
+						title: s,
+						slug: toSlug(removeExtension(s)),
+						file: `${video.file}/${s}`,
+					})),
 				}))
 				.sort(
 					((f) => (sortAsc ? (v1, v2) => -f(v1, v2) : f))(
@@ -154,9 +168,18 @@ const App = () => {
 		[search, adjustedVideos, searcher],
 	)
 
+	const [subVideo, setSubVideo] = useState(0)
+
 	const currentVideo = useMemo(
 		() => videos.find(({ slug }) => videoID === slug),
 		[videos, videoID],
+	)
+	const videoInfo = useMemo(
+		() =>
+			currentVideo?.sub != null
+				? { ...currentVideo, ...currentVideo.sub[subVideo] }
+				: currentVideo,
+		[currentVideo, subVideo],
 	)
 
 	useEffect(() => {
@@ -222,11 +245,11 @@ const App = () => {
 				<div className={classes.video}>
 					<Switch>
 						<Route path="/:videoID">
-							{currentVideo != null ? (
+							{videoInfo != null ? (
 								<video
 									controls
-									src={`/videos/${currentVideo.file}`}
-									poster={currentVideo.thumbnail}
+									src={`/videos/${videoInfo.file}`}
+									poster={videoInfo.thumbnail}
 									onPlay={(ev) => {
 										setVideoPlaying(true)
 										window.onbeforeunload = () => true
@@ -244,6 +267,16 @@ const App = () => {
 							<video autoPlay muted loop playsInline src={placeholderVideo} />
 						</Route>
 					</Switch>
+
+					{currentVideo?.sub != null && (
+						<select onChange={(ev) => setSubVideo(ev.target.value)}>
+							{currentVideo.sub.map((s, i) => (
+								<option key={s.title} value={i}>
+									{s.title}
+								</option>
+							))}
+						</select>
+					)}
 				</div>
 			</div>
 		</>
