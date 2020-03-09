@@ -32,10 +32,6 @@ const useStyles = createUseStyles({
 			backgroundColor: theme.color.secondary,
 		},
 
-		'&:visited': {
-			color: theme.color.text,
-		},
-
 		'&.active': {
 			backgroundColor: theme.color.primary,
 		},

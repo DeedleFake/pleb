@@ -41,6 +41,10 @@ const useStyles = createUseStyles({
 			margin: 0,
 			padding: 0,
 		},
+
+		'a, a:visited, a:hover, a:active': {
+			color: theme.color.text,
+		},
 	},
 
 	main: {
