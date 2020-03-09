@@ -12,6 +12,38 @@ import (
 	"github.com/DeedleFake/pleb/internal/vidutil"
 )
 
+func validFile(fi os.FileInfo) bool {
+	switch filepath.Ext(fi.Name()) {
+	case ".mp4", ".webm", ".avi":
+		return true
+	default:
+		return false
+	}
+}
+
+func handleSub(path string) (sub []string) {
+	dir, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+	defer dir.Close()
+
+	files, err := dir.Readdir(-1)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() || !validFile(file) {
+			continue
+		}
+
+		sub = append(sub, file.Name())
+	}
+
+	return sub
+}
+
 func videoListHandler(root string) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		dir, err := os.Open(root)
@@ -27,18 +59,19 @@ func videoListHandler(root string) http.Handler {
 
 		data := make([]map[string]interface{}, 0, len(files))
 		for _, file := range files {
+			var sub []string
 			if file.IsDir() {
-				continue
+				sub = handleSub(filepath.Join(root, file.Name()))
 			}
-			switch filepath.Ext(file.Name()) {
-			case ".mp4", ".webm", ".avi":
-			default:
+
+			if (sub == nil) && !validFile(file) {
 				continue
 			}
 
 			data = append(data, map[string]interface{}{
 				"time": file.ModTime(),
 				"file": file.Name(),
+				"sub":  sub,
 			})
 		}
 
@@ -59,6 +92,37 @@ func videoHandler(root string) http.Handler {
 func thumbnailHandler(root string) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		file := filepath.Join(root, req.URL.Path)
+
+		info, err := os.Stat(file)
+		if err != nil {
+			panic(err)
+		}
+		if info.IsDir() {
+			dir, err := os.Open(file)
+			if err != nil {
+				panic(err)
+			}
+			defer dir.Close()
+
+			files, err := dir.Readdir(-1)
+			if err != nil {
+				panic(err)
+			}
+
+			var found bool
+			for _, sub := range files {
+				if !validFile(sub) {
+					continue
+				}
+
+				file = filepath.Join(file, sub.Name())
+				found = true
+				break
+			}
+			if !found {
+				panic(os.ErrNotExist)
+			}
+		}
 
 		d, err := vidutil.Duration(req.Context(), file)
 		if err != nil {
