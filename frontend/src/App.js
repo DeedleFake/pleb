@@ -79,7 +79,7 @@ const useStyles = createUseStyles({
 				marginLeft: 8,
 			},
 
-			'& >*:first-child': {
+			'& > *:first-child': {
 				flex: 0,
 				marginLeft: 0,
 			},
@@ -123,7 +123,8 @@ const App = () => {
 	const classes = useStyles()
 
 	const history = useHistory()
-	const { params: { videoID } = {} } = useRouteMatch('/:videoID') || {}
+	const { params: { videoID, subID } = {} } =
+		useRouteMatch('/:videoID/:subID?') || {}
 
 	const [videoPlaying, setVideoPlaying] = useState(false)
 
@@ -172,18 +173,19 @@ const App = () => {
 		[search, adjustedVideos, searcher],
 	)
 
-	const [subVideo, setSubVideo] = useState(0)
-
 	const currentVideo = useMemo(
 		() => videos.find(({ slug }) => videoID === slug),
 		[videos, videoID],
 	)
+
+	const subIndex = useMemo(
+		() => currentVideo?.sub?.findIndex(({ slug }) => subID === slug),
+		[currentVideo, subID],
+	)
+
 	const videoInfo = useMemo(
-		() =>
-			currentVideo?.sub != null
-				? { ...currentVideo, ...currentVideo.sub[subVideo] }
-				: currentVideo,
-		[currentVideo, subVideo],
+		() => ({ ...currentVideo, ...currentVideo?.sub?.[subIndex] }),
+		[currentVideo, subIndex],
 	)
 
 	useEffect(() => {
@@ -243,12 +245,21 @@ const App = () => {
 						className={classes.list}
 						active={videoID}
 						videos={videos}
+						onSelect={(v) => {
+							if (v.slug === videoID) {
+								history.push('/')
+								return
+							}
+
+							let sub = v.sub != null ? `/${v.sub?.[0]?.slug}` : ''
+							history.push(`/${v.slug}${sub}`)
+						}}
 					/>
 				</div>
 
 				<div className={classes.video}>
 					<Switch>
-						<Route path="/:videoID">
+						<Route path="/:videoID/:subID?">
 							{videoInfo != null ? (
 								<video
 									controls
@@ -273,9 +284,11 @@ const App = () => {
 					</Switch>
 
 					{currentVideo?.sub != null && (
-						<select onChange={(ev) => setSubVideo(ev.target.value)}>
+						<select
+							onChange={(ev) => history.push(`/${videoID}/${ev.target.value}`)}
+						>
 							{currentVideo.sub.map((s, i) => (
-								<option key={s.title} value={i}>
+								<option key={s.slug} value={s.slug}>
 									{s.title}
 								</option>
 							))}
