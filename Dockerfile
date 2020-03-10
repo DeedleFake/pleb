@@ -3,7 +3,7 @@ FROM node:alpine AS frontend
 COPY frontend /src
 
 WORKDIR /src
-RUN yarn
+RUN yarn install
 RUN yarn build
 
 FROM golang:alpine AS backend

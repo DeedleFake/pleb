@@ -1,7 +1,6 @@
 // @format
 
 import React from 'react'
-import { Link } from 'react-router-dom'
 import { createUseStyles } from 'react-jss'
 
 import * as theme from './theme.js'
@@ -23,6 +22,9 @@ const useStyles = createUseStyles({
 		marginTop: 16,
 		padding: 16,
 		borderRadius: 16,
+		cursor: 'pointer',
+		border: 'none',
+		color: theme.color.text,
 
 		'&:first-child': {
 			marginTop: 0,
@@ -30,10 +32,6 @@ const useStyles = createUseStyles({
 
 		'&:hover': {
 			backgroundColor: theme.color.secondary,
-		},
-
-		'&:visited': {
-			color: theme.color.text,
 		},
 
 		'&.active': {
@@ -74,25 +72,28 @@ const useStyles = createUseStyles({
 
 const classList = (...classes) => classes.filter((v) => v).join(' ')
 
-const VideoList = ({ className, active, videos }) => {
+const VideoList = ({ className, active, videos, onSelect = () => {} }) => {
 	const classes = useStyles()
 
 	return (
 		<nav className={classList(classes.main, className)}>
-			{videos.map(({ thumbnail, time, slug, title }) => (
-				<Link
-					key={slug}
-					className={classList(classes.video, active === slug && 'active')}
-					to={`/${active !== slug ? slug : ''}`}
+			{videos.map((video) => (
+				<div
+					key={video.slug}
+					className={classList(
+						classes.video,
+						active === video.slug && 'active',
+					)}
+					onClick={(ev) => onSelect(video)}
 				>
 					<div className={classes.thumbnail}>
-						<img alt="Thumbnail" src={thumbnail || placeholderImage} />
+						<img alt="Thumbnail" src={video.thumbnail || placeholderImage} />
 					</div>
 					<div className={classes.info}>
-						<span className={classes.title}>{title}</span>
-						<span className={classes.time}>{time.toLocaleString()}</span>
+						<span className={classes.title}>{video.title}</span>
+						<span className={classes.time}>{video.time.toLocaleString()}</span>
 					</div>
-				</Link>
+				</div>
 			))}
 		</nav>
 	)

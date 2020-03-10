@@ -41,6 +41,10 @@ const useStyles = createUseStyles({
 			margin: 0,
 			padding: 0,
 		},
+
+		'a, a:visited, a:hover, a:active': {
+			color: theme.color.text,
+		},
 	},
 
 	main: {
@@ -75,7 +79,7 @@ const useStyles = createUseStyles({
 				marginLeft: 8,
 			},
 
-			'& >*:first-child': {
+			'& > *:first-child': {
 				flex: 0,
 				marginLeft: 0,
 			},
@@ -105,13 +109,21 @@ const useStyles = createUseStyles({
 			maxHeight: 720,
 		},
 	},
+
+	subSelector: {
+		display: 'flex',
+		flexDirection: 'row',
+
+		marginTop: 16,
+	}
 })
 
 const App = () => {
 	const classes = useStyles()
 
 	const history = useHistory()
-	const { params: { videoID } = {} } = useRouteMatch('/:videoID') || {}
+	const { params: { videoID, subID } = {} } =
+		useRouteMatch('/:videoID/:subID?') || {}
 
 	const [videoPlaying, setVideoPlaying] = useState(false)
 
@@ -133,8 +145,15 @@ const App = () => {
 					...video,
 					time: new Date(video.time),
 					slug: toSlug(removeExtension(video.file)),
-					title: removeExtension(video.file),
+					title: video.sub == null ? removeExtension(video.file) : video.file,
 					thumbnail: `/thumbnail/${video.file}`,
+
+					sub: video?.sub?.map((s) => ({
+						title: s,
+						slug: toSlug(removeExtension(s)),
+						file: `${video.file}/${s}`,
+						thumbnail: `/thumbnail/${video.file}/${s}`,
+					})),
 				}))
 				.sort(
 					((f) => (sortAsc ? (v1, v2) => -f(v1, v2) : f))(
@@ -157,6 +176,16 @@ const App = () => {
 	const currentVideo = useMemo(
 		() => videos.find(({ slug }) => videoID === slug),
 		[videos, videoID],
+	)
+
+	const subIndex = useMemo(
+		() => currentVideo?.sub?.findIndex(({ slug }) => subID === slug),
+		[currentVideo, subID],
+	)
+
+	const videoInfo = useMemo(
+		() => ({ ...currentVideo, ...currentVideo?.sub?.[subIndex] }),
+		[currentVideo, subIndex],
 	)
 
 	useEffect(() => {
@@ -216,17 +245,26 @@ const App = () => {
 						className={classes.list}
 						active={videoID}
 						videos={videos}
+						onSelect={(v) => {
+							if (v.slug === videoID) {
+								history.push('/')
+								return
+							}
+
+							let sub = v.sub != null ? `/${v.sub?.[0]?.slug}` : ''
+							history.push(`/${v.slug}${sub}`)
+						}}
 					/>
 				</div>
 
 				<div className={classes.video}>
 					<Switch>
-						<Route path="/:videoID">
-							{currentVideo != null ? (
+						<Route path="/:videoID/:subID?">
+							{videoInfo != null ? (
 								<video
 									controls
-									src={`/videos/${currentVideo.file}`}
-									poster={currentVideo.thumbnail}
+									src={`/videos/${videoInfo.file}`}
+									poster={videoInfo.thumbnail}
 									onPlay={(ev) => {
 										setVideoPlaying(true)
 										window.onbeforeunload = () => true
@@ -244,6 +282,45 @@ const App = () => {
 							<video autoPlay muted loop playsInline src={placeholderVideo} />
 						</Route>
 					</Switch>
+
+					{currentVideo?.sub != null && (
+						<div className={classes.subSelector}>
+							<button
+								disabled={subIndex === 0}
+								onClick={(ev) =>
+									history.push(
+										`/${videoID}/${currentVideo.sub[subIndex - 1].slug}`,
+									)
+								}
+							>
+								&lt;
+							</button>
+
+							<select
+								value={videoInfo.slug}
+								onChange={(ev) =>
+									history.push(`/${videoID}/${ev.target.value}`)
+								}
+							>
+								{currentVideo.sub.map((s, i) => (
+									<option key={s.slug} value={s.slug}>
+										{s.title}
+									</option>
+								))}
+							</select>
+
+							<button
+								disabled={subIndex === currentVideo.sub.length - 1}
+								onClick={(ev) =>
+									history.push(
+										`/${videoID}/${currentVideo.sub[subIndex + 1].slug}`,
+									)
+								}
+							>
+								&gt;
+							</button>
+						</div>
+					)}
 				</div>
 			</div>
 		</>
