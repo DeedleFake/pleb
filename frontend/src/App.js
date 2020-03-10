@@ -108,15 +108,14 @@ const useStyles = createUseStyles({
 			maxWidth: '100%',
 			maxHeight: 720,
 		},
-
-		'& > *': {
-			marginTop: 16,
-		},
-
-		'& > *:first-child': {
-			marginTop: 0,
-		},
 	},
+
+	subSelector: {
+		display: 'flex',
+		flexDirection: 'row',
+
+		marginTop: 16,
+	}
 })
 
 const App = () => {
@@ -153,6 +152,7 @@ const App = () => {
 						title: s,
 						slug: toSlug(removeExtension(s)),
 						file: `${video.file}/${s}`,
+						thumbnail: `/thumbnail/${video.file}/${s}`,
 					})),
 				}))
 				.sort(
@@ -284,15 +284,42 @@ const App = () => {
 					</Switch>
 
 					{currentVideo?.sub != null && (
-						<select
-							onChange={(ev) => history.push(`/${videoID}/${ev.target.value}`)}
-						>
-							{currentVideo.sub.map((s, i) => (
-								<option key={s.slug} value={s.slug}>
-									{s.title}
-								</option>
-							))}
-						</select>
+						<div className={classes.subSelector}>
+							<button
+								disabled={subIndex === 0}
+								onClick={(ev) =>
+									history.push(
+										`/${videoID}/${currentVideo.sub[subIndex - 1].slug}`,
+									)
+								}
+							>
+								&lt;
+							</button>
+
+							<select
+								value={videoInfo.slug}
+								onChange={(ev) =>
+									history.push(`/${videoID}/${ev.target.value}`)
+								}
+							>
+								{currentVideo.sub.map((s, i) => (
+									<option key={s.slug} value={s.slug}>
+										{s.title}
+									</option>
+								))}
+							</select>
+
+							<button
+								disabled={subIndex === currentVideo.sub.length - 1}
+								onClick={(ev) =>
+									history.push(
+										`/${videoID}/${currentVideo.sub[subIndex + 1].slug}`,
+									)
+								}
+							>
+								&gt;
+							</button>
+						</div>
 					)}
 				</div>
 			</div>
