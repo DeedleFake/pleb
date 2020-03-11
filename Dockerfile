@@ -3,7 +3,7 @@ FROM node:alpine AS frontend
 COPY frontend /src
 
 WORKDIR /src
-RUN yarn install
+RUN yarn install --immutable --immutable-cache --check-cache
 RUN yarn build
 
 FROM golang:alpine AS backend
