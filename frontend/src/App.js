@@ -115,7 +115,7 @@ const useStyles = createUseStyles({
 		flexDirection: 'row',
 
 		marginTop: 16,
-	}
+	},
 })
 
 const App = () => {
@@ -148,12 +148,14 @@ const App = () => {
 					title: video.sub == null ? removeExtension(video.file) : video.file,
 					thumbnail: `/thumbnail/${video.file}`,
 
-					sub: video?.sub?.map((s) => ({
-						title: s,
-						slug: toSlug(removeExtension(s)),
-						file: `${video.file}/${s}`,
-						thumbnail: `/thumbnail/${video.file}/${s}`,
-					})),
+					sub: video?.sub
+						?.map((s) => ({
+							title: removeExtension(s),
+							slug: toSlug(removeExtension(s)),
+							file: `${video.file}/${s}`,
+							thumbnail: `/thumbnail/${video.file}/${s}`,
+						}))
+						.sort((s1, s2) => s1.title.localeCompare(s2.title)),
 				}))
 				.sort(
 					((f) => (sortAsc ? (v1, v2) => -f(v1, v2) : f))(
