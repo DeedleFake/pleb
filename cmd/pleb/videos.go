@@ -45,11 +45,10 @@ func handleSub(path string) (sub []string) {
 }
 
 func videoListHandler(root string) http.Handler {
-	push := func(string) error {
-		return nil
-	}
-
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		push := func(string) error {
+			return nil
+		}
 		if p, ok := rw.(http.Pusher); ok {
 			push = func(target string) error {
 				return p.Push(target, nil)
