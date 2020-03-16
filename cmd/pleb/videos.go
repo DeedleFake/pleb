@@ -46,6 +46,15 @@ func handleSub(path string) (sub []string) {
 
 func videoListHandler(root string) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		push := func(string) error {
+			return nil
+		}
+		if p, ok := rw.(http.Pusher); ok {
+			push = func(target string) error {
+				return p.Push(target, nil)
+			}
+		}
+
 		dir, err := os.Open(root)
 		if err != nil {
 			panic(err)
@@ -73,6 +82,11 @@ func videoListHandler(root string) http.Handler {
 				"file": file.Name(),
 				"sub":  sub,
 			})
+
+			err := push("/thumbnail/" + file.Name())
+			if err != nil {
+				log.Printf("Error pushing %q: %v", file.Name(), err)
+			}
 		}
 
 		e := json.NewEncoder(rw)
